@@ -19,8 +19,8 @@ public class DrivingComputer1 : MonoBehaviour
     public WheelCollider frWheelCollider;
     public WheelCollider rlWheelCollider;
     public WheelCollider rrWheelCollider;
-    public Transform flWheelTrans;
-    public Transform frWheelTrans;
+    public Transform rlWheelTrans;
+    public Transform rrWheelTrans;
 
     public Transform[] wheelTrans;
     public float motorTorque = 465;
@@ -84,18 +84,18 @@ public class DrivingComputer1 : MonoBehaviour
     {
         if(isComputerOver)
         {
-            flWheelCollider.motorTorque = 0;
-            frWheelCollider.motorTorque = 0;
-            flWheelCollider.brakeTorque = 100;
-            frWheelCollider.brakeTorque = 100;
+            rlWheelCollider.motorTorque = 0;
+            rrWheelCollider.motorTorque = 0;
+            rlWheelCollider.brakeTorque = 100;
+            rrWheelCollider.brakeTorque = 100;
             return;
         }
-        flWheelCollider.transform.rotation = Quaternion.LookRotation(poss[nextPos].transform.position - transform.position);
-        frWheelCollider.transform.rotation = Quaternion.LookRotation(poss[nextPos].transform.position - transform.position);
+        rlWheelCollider.transform.rotation = Quaternion.LookRotation(poss[nextPos].transform.position - transform.position);
+        rrWheelCollider.transform.rotation = Quaternion.LookRotation(poss[nextPos].transform.position - transform.position);
         //flWheelCollider.transform.LookAt(poss[nextPos].transform);
         //frWheelCollider.transform.LookAt(poss[nextPos].transform);
-        flWheelTrans.transform.LookAt(poss[nextPos].transform);
-        frWheelTrans.transform.LookAt(poss[nextPos].transform);
+        rlWheelTrans.transform.LookAt(poss[nextPos].transform);
+        rrWheelTrans.transform.LookAt(poss[nextPos].transform);
 
         leftLightColor.color = Color.yellow;
         rightLightColor.color = Color.yellow;
@@ -115,7 +115,7 @@ public class DrivingComputer1 : MonoBehaviour
         {
             return;
         }
-        speed = flWheelCollider.rpm * (flWheelCollider.radius * 2 * Mathf.PI) * 60 / 1000;
+        speed = rlWheelCollider.rpm * (rlWheelCollider.radius * 2 * Mathf.PI) * 60 / 1000;
 
 
         leftLight.SetActive(false);
@@ -123,15 +123,10 @@ public class DrivingComputer1 : MonoBehaviour
 
 
         float axisV = Random.Range(3,5);
+        float axisH = 0.1f * Random.Range(-1, 1);
+        wheelAngel = axisH * steerAngle;
 
-        //if (Input.GetKey(KeyCode.R))
-        //{
-        //    rigidbody.isKinematic = true;
-        //    transform.localPosition = startPos;
-        //    transform.localRotation = startQua;
-        //    isReset = true;
-        //}
-        //加速、倒车
+
 
         if (axisV > 0)
         {
@@ -149,22 +144,30 @@ public class DrivingComputer1 : MonoBehaviour
             }
         }
 
+
+
+        flWheelCollider.steerAngle = wheelAngel;
+        frWheelCollider.steerAngle = wheelAngel;
+
+
         if (speed < maxSpeed)
         {
-            flWheelCollider.motorTorque = axisV * motorTorque;
-            frWheelCollider.motorTorque = axisV * motorTorque;
+            flWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
+            frWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
+            rlWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
+            rrWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed ;
         }
         else
         {
-            flWheelCollider.motorTorque = 0;
-            frWheelCollider.motorTorque = 0;
+            rlWheelCollider.motorTorque = 0;
+            rrWheelCollider.motorTorque = 0;
         }
 
-        WheelRotated(axisV);//控制轮子转动和转向
+        WheelRotated(axisV);
     }
     private void WheelRotated(float axisV)
     {
-        //转动
+
         foreach (Transform wheel in wheelTrans)
         {
             wheel.Rotate(flWheelCollider.rpm * Time.deltaTime * 6, 0, 0);

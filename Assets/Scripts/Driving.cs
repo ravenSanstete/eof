@@ -41,6 +41,10 @@ public class Driving : MonoBehaviour
     private bool isReset = false;
     private bool isFire = false;
     private float fireTime = 0;
+
+
+    private WheelFrictionCurve r_frict;
+    private WheelFrictionCurve f_frict;
     // Use this for initialization
     void Start()
     {
@@ -55,6 +59,10 @@ public class Driving : MonoBehaviour
         audioSource.clip = soundEngine;
         leftLightColor = leftLight.GetComponent<Light>();
         rightLightColor = rightLight.GetComponent<Light>();
+        r_frict= rlWheelCollider.sidewaysFriction;
+        f_frict = flWheelCollider.sidewaysFriction;
+
+
     }
     private float resetTime = 0;
     // Update is called once per frame
@@ -211,7 +219,8 @@ public class Driving : MonoBehaviour
                 rightLight.SetActive(true);
             }
         }
-        //漂移
+
+
         wheelAngel = axisH * steerAngle;
 
         WheelFrictionCurve a = new WheelFrictionCurve();
@@ -233,17 +242,17 @@ public class Driving : MonoBehaviour
             rightLightColor.color = Color.red;
             rightLight.SetActive(true);
 
-            //Quaternion q = Quaternion.Lerp(transform.rotation, t.rotation, 0);
-            //print(q.eulerAngles.x + "  " + q.eulerAngles.y + "  " + q.eulerAngles.z);
-            //Instantiate(brakeLine, rlWheelCollider.transform.position + Vector3.down * 0.46f, q);
-            //Instantiate(brakeLine, rrWheelCollider.transform.position+Vector3.down*0.46f , rrWheelCollider.transform.rotation);
+
+
+
+
 
             t = transform;
             isPY = true;
-            b.extremumValue = 0;
-            b.asymptoteValue = 0;
-            a.extremumValue = 0;
-            a.asymptoteValue = 0;
+            b.extremumValue = 0.1f;
+            b.asymptoteValue = 0.05f;
+            a.extremumValue = 0.1f;
+            a.asymptoteValue = 0.05f;
             //BrakeCar();
             if (audioSource.clip != soundBrake)
             {
@@ -255,20 +264,19 @@ public class Driving : MonoBehaviour
             {
                 audioSource.Play();
             }
-        }
-        else
-        {
-            b.extremumValue = 20000;
-            b.asymptoteValue = 10000;
-            a.extremumValue = 20000;
-            a.asymptoteValue = 10000;
+
+            print("shift sideway set");
+        }else{
+          b = f_frict;
+          a = f_frict;
+          print("sideway reset");
         }
 
 
-        // flWheelCollider.sidewaysFriction = b;
-        // frWheelCollider.sidewaysFriction = b;
-        // rlWheelCollider.sidewaysFriction = a;
-        // rrWheelCollider.sidewaysFriction = a;
+        flWheelCollider.sidewaysFriction = b;
+        frWheelCollider.sidewaysFriction = b;
+        rlWheelCollider.sidewaysFriction = a;
+        rrWheelCollider.sidewaysFriction = a;
         ////
         flWheelCollider.steerAngle = wheelAngel;
         frWheelCollider.steerAngle = wheelAngel;
@@ -309,7 +317,7 @@ public class Driving : MonoBehaviour
             rrWheelCollider.motorTorque = 0;
         }
 
-        WheelRotated(axisV);//控制轮子转动和转向
+        WheelRotated(axisV);
     }
     float pyTime = 0;
 
