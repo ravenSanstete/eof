@@ -293,14 +293,14 @@ public class Driving : MonoBehaviour
             if(!GetComponent<AudioSource>().isPlaying)
             GetComponent<AudioSource>().Play();
         }
-        if (true)
+        if (speed < maxSpeed)
         {
           print("axisV: " + axisV);
           print("motorTorque: " + motorTorque);
-          flWheelCollider.motorTorque = axisV * motorTorque * 5;
-          frWheelCollider.motorTorque = axisV * motorTorque * 5;
-            rlWheelCollider.motorTorque = axisV * motorTorque * 5;
-            rrWheelCollider.motorTorque = axisV * motorTorque * 5;
+          flWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
+          frWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
+            rlWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
+            rrWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
             print("after set rl: " + rlWheelCollider.motorTorque);
         }
         else
