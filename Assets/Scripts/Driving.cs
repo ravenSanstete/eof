@@ -68,8 +68,8 @@ public class Driving : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-      print("rpm: " + rlWheelCollider.rpm);
-      print("torque: " + rlWheelCollider.motorTorque);
+      // print("rpm: " + rlWheelCollider.rpm);
+      // print("torque: " + rlWheelCollider.motorTorque);
 
         GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
         leftLightColor.color = Color.yellow;
@@ -127,10 +127,10 @@ public class Driving : MonoBehaviour
         {
             isFire = true;
         }
-        if (speed > 0)
-            speedPointTrans.eulerAngles = new Vector3(0, 0, -130 - speed * 27 / 14);//仪表盘
-        else
-            speedPointTrans.eulerAngles = new Vector3(0, 0, -130);
+
+
+        SpeedPtRotate(speed);
+
 
         leftLight.SetActive(false);
         rightLight.SetActive(false);
@@ -202,7 +202,9 @@ public class Driving : MonoBehaviour
             transform.localRotation = startQua;
             isReset = true;
         }
-        //加速、倒车
+
+
+
 
         if (axisV > 0)
         {
@@ -224,13 +226,13 @@ public class Driving : MonoBehaviour
         wheelAngel = axisH * steerAngle;
 
         WheelFrictionCurve a = new WheelFrictionCurve();
-        a.asymptoteSlip = 2;
-        a.extremumSlip = 1;
-        a.stiffness = 1;
+        a.asymptoteSlip = 0.4f;
+        a.extremumSlip = 0.8f;
+        a.stiffness = 1f;
         WheelFrictionCurve b = a;
         bool isPY = false;
 
-        print(speed);
+        //print(speed);
 
 
 
@@ -265,11 +267,11 @@ public class Driving : MonoBehaviour
                 audioSource.Play();
             }
 
-            print("shift sideway set");
+            //print("shift sideway set");
         }else{
           b = f_frict;
           a = f_frict;
-          print("sideway reset");
+          //print("sideway reset");
         }
 
 
@@ -303,13 +305,13 @@ public class Driving : MonoBehaviour
         }
         if (speed < maxSpeed)
         {
-          print("axisV: " + axisV);
-          print("motorTorque: " + motorTorque);
+          //print("axisV: " + axisV);
+          //print("motorTorque: " + motorTorque);
           flWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
           frWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
             rlWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
             rrWheelCollider.motorTorque = axisV * motorTorque * (100 + speed) / maxSpeed;
-            print("after set rl: " + rlWheelCollider.motorTorque);
+            //print("after set rl: " + rlWheelCollider.motorTorque);
         }
         else
         {
@@ -357,16 +359,26 @@ public class Driving : MonoBehaviour
     }
 
 
+    private void SpeedPtRotate(float speed){
+      Quaternion target;
+      float smooth = 2.0f;
+       if (speed > 0)
+           target = Quaternion.Euler(0, 0, -130 - speed * 27 / 14);
+       else
+           target = Quaternion.Euler(0, 0, -130);
+
+      speedPointTrans.rotation = Quaternion.Slerp(speedPointTrans.rotation, target, Time.deltaTime * smooth);
+    }
+
+
 
 
     private void WheelRotated(float axisV)
     {
-        //转动
         foreach (Transform wheel in wheelTrans)
         {
             wheel.Rotate(flWheelCollider.rpm * Time.deltaTime * 6, 0, 0);
         }
-        //拐弯
         flWheelTrans.localEulerAngles = new Vector3(0, wheelAngel * 3, 0);
         frWheelTrans.localEulerAngles = new Vector3(0, wheelAngel * 3, 0);
     }

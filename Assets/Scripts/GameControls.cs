@@ -80,31 +80,41 @@ public class GameControls : MonoBehaviour
             }
     }
     public int Rank = 1;
+
+    private int lap = 0;
     public void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name == "Collider_Bottom")
         {
+
+
             driving.startPos = transform.position;
             driving.startQua = transform.rotation;
+
+
+
             if (this.name == "Finish")
-            {  isOver = true;
-                if(PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.SINGLE.ToString())
-                { }
-                else
-                {
+            {
+              // a much finer detection of success
+              if(other.gameObject.transform.parent.GetComponent<Rigidbody>().velocity.x <= 0){
+                lap += 1;
+              }else{
+                lap -= 1;
+              }
+              if (lap >= 1){
+                  isOver = true;
+
+                  if(PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.SINGLE.ToString())
+                  { }
+                  else
+                  {
                     startLabel.text = "Your Rank: " + Rank.ToString();
-                    //bestLabel.text = "best Rank: " +PlayerPrefs.GetInt("bestRank");
-                    //if(!PlayerPrefs.HasKey("bestRank"))
-                    //    PlayerPrefs.SetInt("bestRank", 100);
-                    //int bestRank=PlayerPrefs.GetInt("bestRank");
-                    //if(Rank<bestRank)
-                    //{
-                    //    bestLabel.text = "you are the best";
-                    //    PlayerPrefs.SetInt("bestRank", Rank);
-                    //}
+                  }
                 }
             }
         }
+
+        
         if (other.gameObject.name == "Collider_BottomComputer")
         {
             if (this.name == "Finish")
