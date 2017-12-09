@@ -65,6 +65,14 @@ public class Driving : MonoBehaviour
 
     }
     private float resetTime = 0;
+    public static bool banana = false;
+
+    private float banana_time = 0.0f;
+
+
+
+
+
     // Update is called once per frame
     void Update()
     {
@@ -95,11 +103,27 @@ public class Driving : MonoBehaviour
                 fireTime = 0;
                 isFire = false;
             }
-
-
-
             return;
         }
+
+        // for the banana effect
+        if(Driving.banana){
+          print("banana effect");
+          banana_time += Time.deltaTime;
+
+          leftLightColor.color = Color.green;
+          leftLight.SetActive(true);
+          rightLightColor.color = Color.green;
+          rightLight.SetActive(true);
+
+          if(banana_time > 1.0f){
+            banana_time = 0;
+            Driving.banana = false;
+            print("banana over");
+          }
+        }
+
+
         if (isReset)
         {
             resetTime += Time.deltaTime;
@@ -118,6 +142,9 @@ public class Driving : MonoBehaviour
             thirdCamera.SetActive(true);
             return;
         }
+
+
+        //compute the speed of the cars
         speed = rlWheelCollider.rpm * (rlWheelCollider.radius * 2 * Mathf.PI) * 60 / 1000;
 
 
@@ -129,7 +156,10 @@ public class Driving : MonoBehaviour
         }
 
 
+
+
         SpeedPtRotate(speed);
+
 
 
         leftLight.SetActive(false);
@@ -237,7 +267,7 @@ public class Driving : MonoBehaviour
 
 
         Transform t = transform;
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) || Driving.banana)
         {
             leftLightColor.color = Color.red;
             leftLight.SetActive(true);

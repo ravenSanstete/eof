@@ -12,9 +12,36 @@ public class GameControls : MonoBehaviour
     private bool isGameCompleted = false;
     private GameObject[] CarComputer;
     private string type = GAMETYPE.SINGLE.ToString();
+
+    // some check points
+    private GameObject[] poss = new GameObject[48];
+    private GameObject item_ghost;
+
+    private void GetPoss()
+    {
+        int a = 101;
+        while (a<149)
+        {
+            GameObject g=GameObject.Find("pos"+a);
+            if(g!=null)
+            {
+                poss[a - 101] = g;
+                a++;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+
     // Use this for initialization
     void Start()
     {
+        //fetch the checkpoints from the scene
+        GetPoss();
+
         type = PlayerPrefs.GetString("GAMETYPE");
         if (type == GAMETYPE.SINGLE.ToString())
         {
@@ -30,6 +57,23 @@ public class GameControls : MonoBehaviour
         startLabel = GameObject.Find("Start").GetComponent<UILabel>();
         bestLabel = GameObject.Find("Best").GetComponent<UILabel>();
         //PlayerPrefs.DeleteAll();
+
+
+        //set up the items
+        int i = 0;
+        GameObject banana_item = GameObject.Find("BananaItem");
+
+        while(i < poss.Length){
+          print(poss[i].transform.position);
+          Instantiate(banana_item, poss[i].transform.position, Quaternion.identity);
+          i++;
+        }
+
+        print("here");
+        banana_item.GetComponent<Renderer>().material.color = new Vector4(1.0f,1.0f, 1.0f, 0.0f);
+
+      //  banana_item.SetActive(false);
+
     }
 
     // Update is called once per frame
@@ -114,7 +158,7 @@ public class GameControls : MonoBehaviour
             }
         }
 
-        
+
         if (other.gameObject.name == "Collider_BottomComputer")
         {
             if (this.name == "Finish")
