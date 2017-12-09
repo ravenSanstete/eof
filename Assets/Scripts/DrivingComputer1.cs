@@ -50,7 +50,7 @@ public class DrivingComputer1 : MonoBehaviour
         startPos = transform.position;
         startQua = transform.rotation;
         gc = GameObject.Find("Finish").GetComponent<GameControls>();
-        GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
+        //GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
         thirdCamera = GameObject.Find("ThirdCamera");
         firstCamera = GameObject.Find("FirstCamera");
         finishCamera = GameObject.Find("FinishCamera");
@@ -92,24 +92,14 @@ public class DrivingComputer1 : MonoBehaviour
         }
         rlWheelCollider.transform.rotation = Quaternion.LookRotation(poss[nextPos].transform.position - transform.position);
         rrWheelCollider.transform.rotation = Quaternion.LookRotation(poss[nextPos].transform.position - transform.position);
-        //flWheelCollider.transform.LookAt(poss[nextPos].transform);
-        //frWheelCollider.transform.LookAt(poss[nextPos].transform);
+
         rlWheelTrans.transform.LookAt(poss[nextPos].transform);
         rrWheelTrans.transform.LookAt(poss[nextPos].transform);
 
         leftLightColor.color = Color.yellow;
         rightLightColor.color = Color.yellow;
 
-        //if (isReset)
-        //{
-        //    resetTime += Time.deltaTime;
-        //    if(resetTime>1)
-        //    {
-        //        rigidbody.isKinematic = false;
-        //        resetTime = 0;
-        //        isReset = false;
-        //    }
-        //}
+
 
         if (!gc.isStart)
         {

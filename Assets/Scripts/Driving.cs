@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System;
+using System.IO;
 
 public class Driving : MonoBehaviour
 {
@@ -45,9 +48,18 @@ public class Driving : MonoBehaviour
 
     private WheelFrictionCurve r_frict;
     private WheelFrictionCurve f_frict;
+
+    public List<float> logs;
+
+
+    private string log_path = "/Users/morino/Desktop/log.csv";
+
+
+
     // Use this for initialization
     void Start()
     {
+        logs = new List<float>();
         startPos = transform.position;
         startQua = transform.rotation;
         gc = GameObject.Find("Finish").GetComponent<GameControls>();
@@ -68,16 +80,41 @@ public class Driving : MonoBehaviour
     public static bool banana = false;
 
     private float banana_time = 0.0f;
+    private int k = 24; //24 frame per log
+    private int count = 0;
 
-
-
+    private bool has_written = false;
 
 
     // Update is called once per frame
     void Update()
     {
+
+
+        if (!gc.isStart){
+                  finishCamera.SetActive(false);
+                  firstCamera.SetActive(false);
+                  thirdCamera.SetActive(true);
+
+                  return;
+              }
+
       // print("rpm: " + rlWheelCollider.rpm);
       // print("torque: " + rlWheelCollider.motorTorque);
+
+          //add data to the log
+
+          if(!has_written){
+            Transform current = this.gameObject.transform;
+            logs.Add(current.position.x);
+            logs.Add(current.position.y);
+            logs.Add(current.position.z);
+            logs.Add(current.eulerAngles.x);
+            logs.Add(current.eulerAngles.y);
+            logs.Add(current.eulerAngles.z);
+            //print(logs.Count);
+          }
+
 
         GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
         leftLightColor.color = Color.yellow;
@@ -135,14 +172,6 @@ public class Driving : MonoBehaviour
             }
         }
 
-        if (!gc.isStart)
-        {
-            finishCamera.SetActive(false);
-            firstCamera.SetActive(false);
-            thirdCamera.SetActive(true);
-            return;
-        }
-
 
         //compute the speed of the cars
         speed = rlWheelCollider.rpm * (rlWheelCollider.radius * 2 * Mathf.PI) * 60 / 1000;
@@ -173,6 +202,14 @@ public class Driving : MonoBehaviour
             thirdCamera.SetActive(false);
             GetComponent<AudioSource>().volume = (30 - Vector3.Distance(transform.position, thirdCamera.transform.position)) / 30;
             BrakeCar();
+
+
+
+            //write logs
+            if(!has_written){
+                write_log(logs);
+                has_written = true;
+            }
             return;
         }
         else
@@ -412,4 +449,26 @@ public class Driving : MonoBehaviour
         flWheelTrans.localEulerAngles = new Vector3(0, wheelAngel * 3, 0);
         frWheelTrans.localEulerAngles = new Vector3(0, wheelAngel * 3, 0);
     }
+
+
+
+
+
+    	private void write_log(List<float> logs){
+    	    if(!File.Exists(log_path)){
+    	       File.Create(log_path);
+    	    }
+    	        FileStream fs = File.Open(log_path, FileMode.Open, FileAccess.Write, FileShare.None);
+    	        StreamWriter sw = new StreamWriter(fs);
+    	        int i = 0;
+              print(logs.Count);
+    					while(i < logs.Count){
+    						sw.WriteLine(logs[i] + " " + logs[i+1]+ " " + logs[i+2]+" "+logs[i+3] + " " + logs[4] + " " + logs[5]);
+    						i = i + 6;
+    					}
+          print("write over");
+          sw.Close();
+
+
+    	 }
 }

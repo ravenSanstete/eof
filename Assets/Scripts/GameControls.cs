@@ -13,34 +13,11 @@ public class GameControls : MonoBehaviour
     private GameObject[] CarComputer;
     private string type = GAMETYPE.SINGLE.ToString();
 
-    // some check points
-    private GameObject[] poss = new GameObject[48];
-    private GameObject item_ghost;
-
-    private void GetPoss()
-    {
-        int a = 101;
-        while (a<149)
-        {
-            GameObject g=GameObject.Find("pos"+a);
-            if(g!=null)
-            {
-                poss[a - 101] = g;
-                a++;
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
-
-
     // Use this for initialization
     void Start()
     {
         //fetch the checkpoints from the scene
-        GetPoss();
+
 
         type = PlayerPrefs.GetString("GAMETYPE");
         if (type == GAMETYPE.SINGLE.ToString())
@@ -50,7 +27,17 @@ public class GameControls : MonoBehaviour
             {
                 item.SetActive(false);
             }
+        }else{
+          CarComputer = GameObject.FindGameObjectsWithTag("CarComputer");
+          foreach (GameObject item in CarComputer)
+          {
+              if(item.transform.name != "CarComputer1"){
+                  item.SetActive(false);
+              }
+          }
         }
+
+
         car = GameObject.FindGameObjectWithTag("Car");
         driving = car.GetComponent<Driving>();
         timeLabel = GameObject.Find("Time").GetComponent<UILabel>();
@@ -58,21 +45,6 @@ public class GameControls : MonoBehaviour
         bestLabel = GameObject.Find("Best").GetComponent<UILabel>();
         //PlayerPrefs.DeleteAll();
 
-
-        //set up the items
-        int i = 0;
-        GameObject banana_item = GameObject.Find("BananaItem");
-
-        while(i < poss.Length){
-          print(poss[i].transform.position);
-          Instantiate(banana_item, poss[i].transform.position, Quaternion.identity);
-          i++;
-        }
-
-        print("here");
-        banana_item.GetComponent<Renderer>().material.color = new Vector4(1.0f,1.0f, 1.0f, 0.0f);
-
-      //  banana_item.SetActive(false);
 
     }
 
@@ -145,7 +117,7 @@ public class GameControls : MonoBehaviour
               }else{
                 lap -= 1;
               }
-              if (lap >= 1){
+              if (lap > 0){
                   isOver = true;
 
                   if(PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.SINGLE.ToString())
@@ -164,7 +136,12 @@ public class GameControls : MonoBehaviour
             if (this.name == "Finish")
             {
                     Rank++;
+                    print("Computer finished");
             }
         }
     }
+
+
+
+
 }
