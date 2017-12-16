@@ -10,11 +10,9 @@ public class GameControls : MonoBehaviour
     private UILabel timeLabel, startLabel, bestLabel;
     private float time = 0;
     private bool isGameCompleted = false;
-    private GameObject[] CarComputer;
     private string type = GAMETYPE.SINGLE.ToString(); // which controls the default behavior of the gametype
-    private int AWARD_COUNT = 4;
-    private int GHOST_COUNT = 2;
-    private int TOTAL_COUNT = 8;
+
+
     // Use this for initialization
     void Start()
     {

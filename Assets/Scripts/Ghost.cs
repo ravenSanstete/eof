@@ -5,7 +5,9 @@ using System.IO;
 using UnityEngine;
 
 public class Ghost : MonoBehaviour {
-	private string log_path = "/Users/morino/Desktop/bp/c422698f-102b-4afc-be5b-1696c0ec1eeb.csv";
+	public string log_path = "";
+
+
 	private List<float> data;
 	private GameControls gc;
 	private int count = 0;
@@ -24,32 +26,32 @@ public class Ghost : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
-
 		gc = GameObject.Find("Finish").GetComponent<GameControls>();
+		Vector3 p_1 =  new Vector3(data[6*count], data[6*count + 1], data[6*count + 2]);
+		Vector3 r_1 =  new Vector3(data[6*count+3], data[6*count + 4], data[6*count + 5]);
+
+		Vector3 p_2 = p_1;
+		Vector3 r_2 = r_1;
+
+
+
 		if(gc.isStart && 6*count < data.Count-6){
 			// which means there is one over me
 			if(6*count > 0){
 				Vector3 p_0 = new Vector3(data[6*count - 6], data[6*count - 5], data[6*count - 4]);
-				Vector3 p_2 = new Vector3(data[6*count + 6], data[6*count + 7], data[6*count + 8]);
-				Vector3 p_1 = new Vector3(data[6*count], data[6*count + 1], data[6*count + 2]);
+				p_2 = new Vector3(data[6*count + 6], data[6*count + 7], data[6*count + 8]);
+				r_2 = new Vector3(data[6*count + 9], data[6*count + 10], data[6*count + 11]);
 				float acceleration = ((p_2 - p_1).magnitude - (p_1 - p_0).magnitude);
 				//print(acceleration);
 				wheelAngle = Mathf.Min(Vector3.Angle(p_2 - p_1, p_1 - p_0), 5.0f);
-
 				WheelRotated(acceleration, wheelAngle) ;
-
 			}
-
 			count ++;
-
 			//make the ghost much more realistic, add some rotation to the wheel
 		}
 
-		this.gameObject.transform.position = new Vector3(data[6*count], data[6*count+1], data[6*count + 2]);
-
-		this.gameObject.transform.rotation = Quaternion.Euler(normalize(data[6*count+3]) , data[6*count+4], normalize(data[6*count + 5]));
-
-
+		this.gameObject.transform.position = p_1;
+		this.gameObject.transform.rotation = Quaternion.Euler(r_1);
 	}
 
 	private void WheelRotated(float axisV, float wheelAngle)
@@ -70,9 +72,13 @@ public class Ghost : MonoBehaviour {
 	void read_data(){
 			data = new List<float>();
 			if(!File.Exists(log_path)){
+				//fill in the static data and return
 				data.Add(this.gameObject.transform.position.x);
 						data.Add(this.gameObject.transform.position.y);
 								data.Add(this.gameObject.transform.position.z);
+									data.Add(this.gameObject.transform.eulerAngles.x);
+										data.Add(this.gameObject.transform.eulerAngles.y);
+											data.Add(this.gameObject.transform.eulerAngles.z);
 								return ;
 			}
 

@@ -45,12 +45,12 @@ public class Driving : MonoBehaviour
     private bool isReset = false;
     private bool isFire = false;
     private float fireTime = 0;
+    private float original_mass = 0.0f;
 
 
     private WheelFrictionCurve r_frict;
     private WheelFrictionCurve f_frict;
     public List<float> logs;
-
 
     private string LOG_FORMAT = "/Users/morino/Desktop/bp/{0}.csv";
     private string log_path;
@@ -90,6 +90,8 @@ public class Driving : MonoBehaviour
         startQua = transform.rotation;
         gc = GameObject.Find("Finish").GetComponent<GameControls>();
         GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
+        original_mass = GetComponent<Rigidbody>().mass;
+
         thirdCamera = GameObject.Find("ThirdCamera");
         firstCamera = GameObject.Find("FirstCamera");
         finishCamera = GameObject.Find("FinishCamera");
@@ -106,9 +108,43 @@ public class Driving : MonoBehaviour
 
 
     private float resetTime = 0;
-    public static bool banana = false;
 
+    //parameter for the items
+    /* BANANA */
+    public static bool banana = false;
     private float banana_time = 0.0f;
+    private float banana_duration = 1.0f;
+
+    /* SHRINK */
+    public static bool shrink = false;
+    private float shrink_time = 0.0f;
+    private float shrink_duration = 5.0f;
+    private float shrink_rate = 0.5f;
+
+    /* MIRA */
+    public static bool mirror = false;
+    private float mirror_time = 0.0f;
+    private float mirror_duration = 7.0f;
+
+    /* LOSS gravity */
+    public static bool anti_gravity = false;
+    private float anti_gravity_time = 0.0f;
+    private float anti_gravity_duration = 3.0f;
+    private float new_mass = 90.0f;
+    private bool anti_gravity_rd = false;
+    private float anti_gravity_ub = 1.0f;
+    private Quaternion anti_gravity_or;
+
+
+    /* freeze */
+    public static bool freeze = false;
+    private float freeze_time = 0.0f;
+    private float freeze_duration = 1.0f;
+
+
+
+
+
     private int k = 24; //24 frame per log
     private int count = 0;
 
@@ -133,8 +169,9 @@ public class Driving : MonoBehaviour
 
           //add data to the log
 
-          if(!has_written){
+          if(!BananaEffect.item_enabled && !has_written){
             Transform current = this.gameObject.transform;
+            print("log");
             logs.Add(current.position.x);
             logs.Add(current.position.y);
             logs.Add(current.position.z);
@@ -173,6 +210,12 @@ public class Driving : MonoBehaviour
             return;
         }
 
+
+
+        float axisV = Input.GetAxis("Vertical");
+        float axisH = Input.GetAxis("Horizontal");
+/*** HERE BEGIN THE IMPLEMENTATION OF THE ITEMS***/
+
         // for the banana effect
         if(Driving.banana){
           print("banana effect");
@@ -183,12 +226,118 @@ public class Driving : MonoBehaviour
           rightLightColor.color = Color.green;
           rightLight.SetActive(true);
 
-          if(banana_time > 1.0f){
+          if(banana_time > banana_duration){
             banana_time = 0;
             Driving.banana = false;
             print("banana over");
           }
         }
+
+
+        //for the shrink effect
+        if(Driving.shrink){
+          print("shrink effect");
+          shrink_time += Time.deltaTime;
+
+          leftLightColor.color = Color.black;
+          leftLight.SetActive(true);
+          rightLightColor.color = Color.black;
+          rightLight.SetActive(true);
+          this.gameObject.transform.localScale = new Vector3(shrink_rate, shrink_rate, shrink_rate);
+
+          if(shrink_time > shrink_duration){
+            shrink_time = 0;
+            Driving.shrink = false;
+            print("shrink over");
+          }
+        }else{
+            this.gameObject.transform.localScale = new Vector3(1.0f,1.0f,1.0f);
+        }
+
+
+        // for the mirror effect
+        if(Driving.mirror){
+          print("mirror effect");
+          mirror_time += Time.deltaTime;
+
+          leftLightColor.color = Color.green;
+          leftLight.SetActive(true);
+          rightLightColor.color = Color.green;
+          rightLight.SetActive(true);
+
+          //effect (mirror)
+          axisH = -axisH;
+
+          if(mirror_time > mirror_duration){
+            mirror_time = 0;
+            Driving.mirror = false;
+            print("mirror over");
+          }
+        }
+
+        // for the anti-gravity effect
+        if(Driving.anti_gravity){
+          print("anti_gravity effect");
+          anti_gravity_time += Time.deltaTime;
+
+          leftLightColor.color = Color.green;
+          leftLight.SetActive(true);
+          rightLightColor.color = Color.green;
+          rightLight.SetActive(true);
+
+          if(!anti_gravity_rd){
+              anti_gravity_duration = UnityEngine.Random.Range(0.5f, anti_gravity_ub);
+              anti_gravity_rd = true;
+              anti_gravity_or = this.gameObject.transform.rotation;
+          }
+
+          this.gameObject.transform.rotation = anti_gravity_or;
+          //effect (anti_gravity)
+          GetComponent<Rigidbody>().mass = new_mass;
+          //GetComponent<Rigidbody>().detectCollisions = false;
+
+          //GetComponent<Rigidbody>().isKinematic = true;
+          if(anti_gravity_time > anti_gravity_duration){
+            anti_gravity_time = 0;
+            Driving.anti_gravity = false;
+            print("anti_gravity over");
+          }
+
+        }else{
+          GetComponent<Rigidbody>().mass = original_mass;
+          GetComponent<Rigidbody>().detectCollisions = true;
+          //GetComponent<Rigidbody>().isKinematic = false;
+          anti_gravity_rd = false;
+        }
+
+
+        // for the freeze effect
+        if(Driving.freeze){
+          print("freeze effect");
+          freeze_time += Time.deltaTime;
+
+          leftLightColor.color = Color.green;
+          leftLight.SetActive(true);
+          rightLightColor.color = Color.green;
+          rightLight.SetActive(true);
+
+          //effect for freeze
+          GetComponent<Rigidbody>().isKinematic = true;
+          if(freeze_time > freeze_duration){
+            freeze_time = 0;
+            Driving.freeze = false;
+            print("freeze over");
+          }
+        }else{
+            GetComponent<Rigidbody>().isKinematic = false;
+        }
+
+
+
+
+/*** HERE END THE IMPLEMENTATION OF THE ITEMS***/
+
+
 
 
         if (isReset)
@@ -236,7 +385,7 @@ public class Driving : MonoBehaviour
 
 
             //write logs
-            if(!has_written){
+            if(!BananaEffect.item_enabled && !has_written){
                 write_log(logs);
                 has_written = true;
             }
@@ -289,9 +438,6 @@ public class Driving : MonoBehaviour
         }
 
 
-        float axisV = Input.GetAxis("Vertical");
-        float axisH = Input.GetAxis("Horizontal");
-
         if (Input.GetKey(KeyCode.R))
         {
             GetComponent<Rigidbody>().isKinematic = true;
@@ -340,11 +486,6 @@ public class Driving : MonoBehaviour
             leftLight.SetActive(true);
             rightLightColor.color = Color.red;
             rightLight.SetActive(true);
-
-
-
-
-
 
             t = transform;
             isPY = true;
@@ -441,7 +582,7 @@ public class Driving : MonoBehaviour
         flWheelCollider.motorTorque = -maxBrakeTorque;
         frWheelCollider.motorTorque = -maxBrakeTorque;
 
-        
+
         if (audioSource.clip != soundBrake)
         {
             audioSource.clip = soundBrake;

@@ -1,12 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-
+using System;
 
 public class Extra : MonoBehaviour {
-
-
 	    // some check points
 	    private GameObject[] poss = new GameObject[48];
 	    private GameObject item_ghost;
@@ -16,7 +13,9 @@ public class Extra : MonoBehaviour {
 			private int AWARD_COUNT = 4;
 	    private int GHOST_COUNT = 2;
 	    private int TOTAL_COUNT = 8;
-			
+			private string [] log_uuids;
+			private string LOG_FORMAT = "/Users/morino/Desktop/bp/{0}.csv";
+
 	    private void GetPoss()
 	    {
 	        int a = 101;
@@ -35,17 +34,32 @@ public class Extra : MonoBehaviour {
 	        }
 	    }
 
+			//a trunk, later the network module will let it ask the server for log data
+			private void fetch_logs(){
+
+				//these are just fake codes, which will be implemented after morino has some knowledge
+				// about how were the network module implemented
+				int i = 0;
+				while(i < log_uuids.Length){
+					log_uuids[i] = "64284839-a483-4081-b3d1-f74919459283";
+					i++;
+				}
+			}
+
+
 	// Use this for initialization
-	void Start () {
+	void Start (){
+				log_uuids = new string[TOTAL_COUNT];
+				fetch_logs();
 
 				GetPoss();
 
 				type = PlayerPrefs.GetString("GAMETYPE");
+				CarComputer = GameObject.FindGameObjectsWithTag("CarComputer");
 
         //indicates the single driver mode
         if (type == GAMETYPE.SINGLE.ToString())
         {
-            CarComputer = GameObject.FindGameObjectsWithTag("CarComputer");
             foreach (GameObject item in CarComputer)
             {
                 item.SetActive(false);
@@ -55,8 +69,7 @@ public class Extra : MonoBehaviour {
           // control the count of computercar over the lane
           int total_deact = TOTAL_COUNT - (type == GAMETYPE.MULTI.ToString()? GHOST_COUNT: AWARD_COUNT);
           int current_count = 0;
-          print(total_deact);
-          CarComputer = GameObject.FindGameObjectsWithTag("CarComputer");
+          //print(total_deact);
           // only deactivate the specified number of cars on the scene
           // travel over the list
           int j = 0;
@@ -68,17 +81,30 @@ public class Extra : MonoBehaviour {
         }
 
 
-		        //set up the items
-		        int i = 0;
-		        GameObject banana_item = GameObject.Find("BananaItem");
 
-		        while(i < poss.Length){
-		          print(poss[i].transform.position);
-		          Instantiate(banana_item, poss[i].transform.position, Quaternion.identity);
-		          i++;
-		        }
+				//setup the datapath for each active carcomputer
+				for(int j = 0; j < CarComputer.Length; j++){
+					if(CarComputer[j].activeSelf){
+						//then set the log path
+						CarComputer[j].GetComponent<Ghost>().log_path = String.Format(LOG_FORMAT, log_uuids[j]);
+					}
+				}
 
-		        banana_item.SetActive(false);
+
+
+		    //set up the items
+		    GameObject banana_item = GameObject.Find("BananaItem");
+
+		  	for(int i = 0; i < poss.Length; i++){
+		        Instantiate(banana_item, poss[i].transform.position, Quaternion.identity);
+		    }
+
+		   	banana_item.SetActive(false);
+
+
+				// morino should set all the data path for each car in this script
+
+
 
 
 	}
