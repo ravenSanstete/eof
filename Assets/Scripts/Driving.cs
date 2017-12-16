@@ -26,8 +26,9 @@ public class Driving : MonoBehaviour
     public Transform frWheelTrans;
 
     public Transform[] wheelTrans;
-    public float motorTorque = 500;
-    public float steerAngle = 10;
+    public float motorTorque = 450;
+    public float maxBrakeTorque = 300;
+    public float steerAngle = 5;
     public Transform centerOfMass;
     public float speed;
     private float wheelAngel;
@@ -48,17 +49,42 @@ public class Driving : MonoBehaviour
 
     private WheelFrictionCurve r_frict;
     private WheelFrictionCurve f_frict;
-
     public List<float> logs;
 
 
-    private string log_path = "/Users/morino/Desktop/log.csv";
+    private string LOG_FORMAT = "/Users/morino/Desktop/bp/{0}.csv";
+    private string log_path;
+    private string generate_random_record_name(){
+      return String.Format(LOG_FORMAT, Guid.NewGuid().ToString());
+    }
+    private Vector3 generate_random_position(){
+      float s = -0.8f;
+      float e = 1.5f;
+      float bound = 1.0f;
+      float y = 102.9f;
+      float x_0 = 1088.177f;
+      float x_1 = 1095.667f;
+      float z_0 = 650.7893f;
+      float z_1 = 658.1313f;
 
+      // compute the normal
+      Vector3 n = new Vector3(z_0 - z_1, 0 , x_1 - x_0);
 
+      float k = UnityEngine.Random.Range(0.0f, bound);
+      // float k = bound;
+      float t = UnityEngine.Random.Range(s, e);
+      print("Random Position:"+t);
+      //float t = e
+      return new Vector3(x_0 + (x_1 - x_0) * t, y, z_0 + (z_1 - z_0) * t) + n * k; //with some fluctuation over the normal direction
+    }
 
     // Use this for initialization
     void Start()
     {
+        UnityEngine.Random.seed = (int)DateTime.Now.Ticks;
+        // generate random log log_path;
+        log_path = generate_random_record_name();
+        print(log_path);
         logs = new List<float>();
         startPos = transform.position;
         startQua = transform.rotation;
@@ -73,9 +99,12 @@ public class Driving : MonoBehaviour
         rightLightColor = rightLight.GetComponent<Light>();
         r_frict= rlWheelCollider.sidewaysFriction;
         f_frict = flWheelCollider.sidewaysFriction;
-
+        //set the starting point of the car
+        this.gameObject.transform.position = generate_random_position();
 
     }
+
+
     private float resetTime = 0;
     public static bool banana = false;
 
@@ -112,6 +141,7 @@ public class Driving : MonoBehaviour
             logs.Add(current.eulerAngles.x);
             logs.Add(current.eulerAngles.y);
             logs.Add(current.eulerAngles.z);
+            print(current.eulerAngles);
             //print(logs.Count);
           }
 
@@ -410,8 +440,8 @@ public class Driving : MonoBehaviour
         rlWheelCollider.motorTorque = 0;
         rrWheelCollider.motorTorque = 0;
 
-        rlWheelCollider.brakeTorque = 100;
-        rrWheelCollider.brakeTorque = 100;
+        rlWheelCollider.brakeTorque = maxBrakeTorque;
+        rrWheelCollider.brakeTorque = maxBrakeTorque;
         //audio.Stop();
         if (audioSource.clip != soundBrake)
         {
@@ -455,15 +485,18 @@ public class Driving : MonoBehaviour
 
 
     	private void write_log(List<float> logs){
+        FileStream fs;
     	    if(!File.Exists(log_path)){
-    	       File.Create(log_path);
-    	    }
-    	        FileStream fs = File.Open(log_path, FileMode.Open, FileAccess.Write, FileShare.None);
+    	       fs = File.Create(log_path);
+    	    }else{
+             fs = File.Open(log_path, FileMode.Open, FileAccess.Write, FileShare.None);
+          }
+
     	        StreamWriter sw = new StreamWriter(fs);
     	        int i = 0;
               print(logs.Count);
     					while(i < logs.Count){
-    						sw.WriteLine(logs[i] + " " + logs[i+1]+ " " + logs[i+2]+" "+logs[i+3] + " " + logs[4] + " " + logs[5]);
+    						sw.WriteLine(logs[i] + " " + logs[i+1]+ " " + logs[i+2]+" "+logs[i+3] + " " + logs[i+4] + " " + logs[i+5]);
     						i = i + 6;
     					}
           print("write over");

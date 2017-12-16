@@ -95,7 +95,9 @@ public class GameControls : MonoBehaviour
               }else{
                 lap -= 1;
               }
-              if (lap > 0){
+
+              // I only set the condition to be true, since I would like to record some data for test
+              if (true){
                   isOver = true;
 
                   if(PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.SINGLE.ToString())
