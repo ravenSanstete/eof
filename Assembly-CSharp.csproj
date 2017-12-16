@@ -184,13 +184,16 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UITexture.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UITooltip.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
+     <Compile Include="Assets\Scripts\BananaEffect.cs" />
      <Compile Include="Assets\Scripts\CarShadow.cs" />
      <Compile Include="Assets\Scripts\CSharpScripts\BirdsBehaviour.cs" />
      <Compile Include="Assets\Scripts\Driving.cs" />
      <Compile Include="Assets\Scripts\DrivingComputer1.cs" />
      <Compile Include="Assets\Scripts\DrivingComputer2.cs" />
      <Compile Include="Assets\Scripts\DrivingComputer3.cs" />
+     <Compile Include="Assets\Scripts\Extra.cs" />
      <Compile Include="Assets\Scripts\GameControls.cs" />
+     <Compile Include="Assets\Scripts\Ghost.cs" />
      <Compile Include="Assets\Scripts\smoothFlow.cs" />
      <Compile Include="Assets\Scripts\Sound.cs" />
      <Compile Include="Assets\Scripts\startMenu.cs" />

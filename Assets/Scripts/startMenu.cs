@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
-public enum GAMETYPE { SINGLE,MULTI};
+// going to implement the award mode
+public enum GAMETYPE { SINGLE,MULTI,AWARD};
 public class startMenu : MonoBehaviour {
     public GameObject spriteA;
     public GameObject spriteB;
@@ -9,10 +10,10 @@ public class startMenu : MonoBehaviour {
 	void Start () {
         spriteB.SetActive(false);
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
 
     public void playA()
@@ -31,6 +32,13 @@ public class startMenu : MonoBehaviour {
         gameType = GAMETYPE.MULTI;
         PlayerPrefs.SetString("GAMETYPE", "MULTI");
         Application.LoadLevel(1);
+    }
+    public void playAward()
+    {
+      gameType = GAMETYPE.AWARD;
+      PlayerPrefs.SetString("GAMETYPE", "AWARD");
+      Application.LoadLevel(1);
+
     }
     public void Quit()
     { Application.Quit(); }

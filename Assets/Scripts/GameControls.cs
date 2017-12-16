@@ -11,41 +11,19 @@ public class GameControls : MonoBehaviour
     private float time = 0;
     private bool isGameCompleted = false;
     private GameObject[] CarComputer;
-    private string type = GAMETYPE.SINGLE.ToString();
-
+    private string type = GAMETYPE.SINGLE.ToString(); // which controls the default behavior of the gametype
+    private int AWARD_COUNT = 4;
+    private int GHOST_COUNT = 2;
+    private int TOTAL_COUNT = 8;
     // Use this for initialization
     void Start()
     {
-        //fetch the checkpoints from the scene
-
-
-        type = PlayerPrefs.GetString("GAMETYPE");
-        if (type == GAMETYPE.SINGLE.ToString())
-        {
-            CarComputer = GameObject.FindGameObjectsWithTag("CarComputer");
-            foreach (GameObject item in CarComputer)
-            {
-                item.SetActive(false);
-            }
-        }else{
-          CarComputer = GameObject.FindGameObjectsWithTag("CarComputer");
-          foreach (GameObject item in CarComputer)
-          {
-              if(item.transform.name != "CarComputer1"){
-                  item.SetActive(false);
-              }
-          }
-        }
-
-
         car = GameObject.FindGameObjectWithTag("Car");
         driving = car.GetComponent<Driving>();
         timeLabel = GameObject.Find("Time").GetComponent<UILabel>();
         startLabel = GameObject.Find("Start").GetComponent<UILabel>();
         bestLabel = GameObject.Find("Best").GetComponent<UILabel>();
         //PlayerPrefs.DeleteAll();
-
-
     }
 
     // Update is called once per frame
