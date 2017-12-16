@@ -27,7 +27,7 @@ public class Driving : MonoBehaviour
 
     public Transform[] wheelTrans;
     public float motorTorque = 450;
-    public float maxBrakeTorque = 300;
+    public float maxBrakeTorque = 1000;
     public float steerAngle = 5;
     public Transform centerOfMass;
     public float speed;
@@ -73,7 +73,7 @@ public class Driving : MonoBehaviour
       float k = UnityEngine.Random.Range(0.0f, bound);
       // float k = bound;
       float t = UnityEngine.Random.Range(s, e);
-      print("Random Position:"+t);
+      //print("Random Position:"+t);
       //float t = e
       return new Vector3(x_0 + (x_1 - x_0) * t, y, z_0 + (z_1 - z_0) * t) + n * k; //with some fluctuation over the normal direction
     }
@@ -141,7 +141,7 @@ public class Driving : MonoBehaviour
             logs.Add(current.eulerAngles.x);
             logs.Add(current.eulerAngles.y);
             logs.Add(current.eulerAngles.z);
-            print(current.eulerAngles);
+            //print(current.eulerAngles);
             //print(logs.Count);
           }
 
@@ -382,8 +382,9 @@ public class Driving : MonoBehaviour
 
 
 
-        if (speed * axisV < 0)
+        if (axisV < 0)
         {
+            //print("Brake");
             BrakeCar();
         }
         else
@@ -393,13 +394,12 @@ public class Driving : MonoBehaviour
             if (speed > maxSpeed)
                 speed = maxSpeed;
             GetComponent<AudioSource>().pitch = maxSpeed/300 + speed / maxSpeed;
-            flWheelCollider.brakeTorque = 0;
-            frWheelCollider.brakeTorque = 0;
-            rlWheelCollider.brakeTorque = 0;
-            rrWheelCollider.brakeTorque = 0;
             if(!GetComponent<AudioSource>().isPlaying)
             GetComponent<AudioSource>().Play();
         }
+
+
+
         if (speed < maxSpeed)
         {
           //print("axisV: " + axisV);
@@ -424,25 +424,24 @@ public class Driving : MonoBehaviour
 
     private void BrakeCar()
     {
-        if (speed == 0)
-        {
-            leftLight.SetActive(false);
-            rightLight.SetActive(false);
-            audioSource.enabled = false;
-            GetComponent<AudioSource>().Stop();
-            return;
-        }
+        // if (speed == 0)
+        // {
+        //     leftLight.SetActive(false);
+        //     rightLight.SetActive(false);
+        //     audioSource.enabled = false;
+        //     GetComponent<AudioSource>().Stop();
+        //     return;
+        // }
         leftSmoke.emit = false;
         rightSmoke.emit = false;
         leftLight.SetActive(true);
         rightLight.SetActive(true);
 
-        rlWheelCollider.motorTorque = 0;
-        rrWheelCollider.motorTorque = 0;
 
-        rlWheelCollider.brakeTorque = maxBrakeTorque;
-        rrWheelCollider.brakeTorque = maxBrakeTorque;
-        //audio.Stop();
+        flWheelCollider.motorTorque = -maxBrakeTorque;
+        frWheelCollider.motorTorque = -maxBrakeTorque;
+
+        
         if (audioSource.clip != soundBrake)
         {
             audioSource.clip = soundBrake;
