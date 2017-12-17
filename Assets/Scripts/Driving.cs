@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System;
@@ -24,6 +25,7 @@ public class Driving : MonoBehaviour
     public WheelCollider rrWheelCollider;
     public Transform flWheelTrans;
     public Transform frWheelTrans;
+    public UILabel status_label;
 
     public Transform[] wheelTrans;
     public float motorTorque = 450;
@@ -62,6 +64,7 @@ public class Driving : MonoBehaviour
 
 
 
+
     private string LOG_FORMAT = "/Users/morino/Desktop/bp/{0}.csv";
     private string log_path;
     private string generate_random_record_name(){
@@ -86,6 +89,17 @@ public class Driving : MonoBehaviour
       //print("Random Position:"+t);
       //float t = e
       return new Vector3(x_0 + (x_1 - x_0) * t, y, z_0 + (z_1 - z_0) * t) + n * k; //with some fluctuation over the normal direction
+    }
+
+
+    public void setStatus(string s){
+      status_label.text = s;
+      status_label.color = Color.red;
+    }
+
+    public void recoverStatus(){
+      status_label.text = "NORMAL";
+      status_label.color = Color.green;
     }
 
     // Use this for initialization
@@ -275,11 +289,13 @@ public class Driving : MonoBehaviour
           leftLight.SetActive(true);
           rightLightColor.color = Color.green;
           rightLight.SetActive(true);
+          setStatus("BANANA");
 
           if(banana_time > banana_duration){
             banana_time = 0;
             Driving.banana = false;
             print("banana over");
+            recoverStatus();
           }
         }
 
@@ -294,11 +310,12 @@ public class Driving : MonoBehaviour
           rightLightColor.color = Color.black;
           rightLight.SetActive(true);
           this.gameObject.transform.localScale = new Vector3(shrink_rate, shrink_rate, shrink_rate);
-
+          setStatus("SHRINK");
           if(shrink_time > shrink_duration){
             shrink_time = 0;
             Driving.shrink = false;
             print("shrink over");
+            recoverStatus();
           }
         }else{
             this.gameObject.transform.localScale = new Vector3(1.0f,1.0f,1.0f);
@@ -314,6 +331,7 @@ public class Driving : MonoBehaviour
           leftLight.SetActive(true);
           rightLightColor.color = Color.green;
           rightLight.SetActive(true);
+          setStatus("MIRROR");
 
           //effect (mirror)
           axisH = -axisH;
@@ -322,6 +340,7 @@ public class Driving : MonoBehaviour
             mirror_time = 0;
             Driving.mirror = false;
             print("mirror over");
+            recoverStatus();
           }
         }
 
@@ -334,6 +353,7 @@ public class Driving : MonoBehaviour
           leftLight.SetActive(true);
           rightLightColor.color = Color.green;
           rightLight.SetActive(true);
+          setStatus("ANTI-GRAVITY");
 
           if(!anti_gravity_rd){
               anti_gravity_duration = UnityEngine.Random.Range(0.5f, anti_gravity_ub);
@@ -351,6 +371,7 @@ public class Driving : MonoBehaviour
             anti_gravity_time = 0;
             Driving.anti_gravity = false;
             print("anti_gravity over");
+            recoverStatus();
           }
 
         }else{
@@ -373,10 +394,13 @@ public class Driving : MonoBehaviour
 
           //effect for freeze
           GetComponent<Rigidbody>().isKinematic = true;
+          setStatus("FREEZE");
+
           if(freeze_time > freeze_duration){
             freeze_time = 0;
             Driving.freeze = false;
             print("freeze over");
+            recoverStatus();
           }
         }else{
             GetComponent<Rigidbody>().isKinematic = false;
@@ -605,6 +629,8 @@ public class Driving : MonoBehaviour
         }
         else
         {
+            flWheelCollider.motorTorque = 0;
+            frWheelCollider.motorTorque = 0;
             rlWheelCollider.motorTorque = 0;
             rrWheelCollider.motorTorque = 0;
         }
@@ -651,10 +677,8 @@ public class Driving : MonoBehaviour
     private void SpeedPtRotate(float speed){
       Quaternion target;
       float smooth = 2.0f;
-       if (speed > 0)
-           target = Quaternion.Euler(0, 0, -130 - speed * 27 / 14);
-       else
-           target = Quaternion.Euler(0, 0, -130);
+
+      target = Quaternion.Euler(0, 0, -130 - (GetComponent<Rigidbody>().velocity.magnitude) * 5);
 
       speedPointTrans.rotation = Quaternion.Slerp(speedPointTrans.rotation, target, Time.deltaTime * smooth);
     }

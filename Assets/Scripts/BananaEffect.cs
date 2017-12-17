@@ -28,7 +28,7 @@ public class BananaEffect : MonoBehaviour {
 								break;
 				case 2: Driving.mirror = true;
 								break;
-				case 3: Driving.mirror = true;
+				case 3: Driving.anti_gravity = true;
 								break;
 				case 4: Driving.freeze = true;
 								break;
