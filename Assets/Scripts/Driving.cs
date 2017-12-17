@@ -50,7 +50,17 @@ public class Driving : MonoBehaviour
 
     private WheelFrictionCurve r_frict;
     private WheelFrictionCurve f_frict;
+
+
+    // these stuffs for logs
     public List<float> logs;
+    private List<Vector3> log_pos;
+    private List <Quaternion> log_quat;
+    private List <float> log_tp;
+    private float current_tp = 0.0f;
+    public static float fps = 1.0f / 24.0f; //which means the log will be 40fps
+
+
 
     private string LOG_FORMAT = "/Users/morino/Desktop/bp/{0}.csv";
     private string log_path;
@@ -86,6 +96,10 @@ public class Driving : MonoBehaviour
         log_path = generate_random_record_name();
         print(log_path);
         logs = new List<float>();
+        log_pos = new List<Vector3>();
+        log_quat = new List<Quaternion>();
+        log_tp = new List<float>();
+
         startPos = transform.position;
         startQua = transform.rotation;
         gc = GameObject.Find("Finish").GetComponent<GameControls>();
@@ -144,11 +158,53 @@ public class Driving : MonoBehaviour
 
 
 
-
-    private int k = 24; //24 frame per log
     private int count = 0;
 
     private bool has_written = false;
+
+
+    private void interpolate(){
+       // just put the generated data into the logs
+       // raw data: log_pos, log_quat, log_tp
+       float t = 0.0f;
+       float split = 0.5f;
+       int i = 0;
+       Vector3 fixed_fps_pos;
+       Quaternion fixed_fps_quat;
+
+       while(t <= log_tp[log_tp.Count - 1]){
+         // first find the smallest time stamp larger than the current required timestamp
+         while(i < log_tp.Count && log_tp[i] <= t){
+           i++;
+         }
+
+         int j = (i == 0)? i : i -1;
+
+         if(i == j){
+           split = 0.5f;
+         }else{
+           split = (t - log_tp[j]) / (log_tp[i] - log_tp[j]);
+         }
+
+         fixed_fps_pos = Vector3.Lerp(log_pos[j], log_pos[i], split);
+         fixed_fps_quat = Quaternion.Slerp(log_quat[j], log_quat[i], split);
+
+         logs.Add(fixed_fps_pos.x);
+         logs.Add(fixed_fps_pos.y);
+         logs.Add(fixed_fps_pos.z);
+
+         logs.Add(fixed_fps_quat.x);
+         logs.Add(fixed_fps_quat.y);
+         logs.Add(fixed_fps_quat.z);
+         logs.Add(fixed_fps_quat.w);
+
+         t += fps;
+      }
+
+      print("Fixed Log Count: " + (logs.Count / 7));
+
+
+    }
 
 
     // Update is called once per frame
@@ -158,8 +214,8 @@ public class Driving : MonoBehaviour
 
         if (!gc.isStart){
                   finishCamera.SetActive(false);
-                  firstCamera.SetActive(false);
-                  thirdCamera.SetActive(true);
+                  firstCamera.SetActive(true);
+                  thirdCamera.SetActive(false);
 
                   return;
               }
@@ -170,16 +226,10 @@ public class Driving : MonoBehaviour
           //add data to the log
 
           if(!BananaEffect.item_enabled && !has_written){
-            Transform current = this.gameObject.transform;
-            print("log");
-            logs.Add(current.position.x);
-            logs.Add(current.position.y);
-            logs.Add(current.position.z);
-            logs.Add(current.eulerAngles.x);
-            logs.Add(current.eulerAngles.y);
-            logs.Add(current.eulerAngles.z);
-            //print(current.eulerAngles);
-            //print(logs.Count);
+            log_pos.Add(this.gameObject.transform.position);
+            log_quat.Add(this.gameObject.transform.rotation);
+            log_tp.Add(current_tp);
+            current_tp += Time.deltaTime;
           }
 
 
@@ -386,9 +436,11 @@ public class Driving : MonoBehaviour
 
             //write logs
             if(!BananaEffect.item_enabled && !has_written){
-                write_log(logs);
+                interpolate();
+                write_log(logs); //write the logs into the file
                 has_written = true;
             }
+
             return;
         }
         else
@@ -400,13 +452,13 @@ public class Driving : MonoBehaviour
             }
             if (isFirstPersonView)
             {
-                firstCamera.SetActive(true);
-                thirdCamera.SetActive(false);
+                firstCamera.SetActive(false);
+                thirdCamera.SetActive(true);
             }
             else
             {
-                firstCamera.SetActive(false);
-                thirdCamera.SetActive(true);
+                firstCamera.SetActive(true);
+                thirdCamera.SetActive(false);
             }
         }
 
@@ -636,8 +688,8 @@ public class Driving : MonoBehaviour
     	        int i = 0;
               print(logs.Count);
     					while(i < logs.Count){
-    						sw.WriteLine(logs[i] + " " + logs[i+1]+ " " + logs[i+2]+" "+logs[i+3] + " " + logs[i+4] + " " + logs[i+5]);
-    						i = i + 6;
+    						sw.WriteLine(logs[i] + " " + logs[i+1]+ " " + logs[i+2]+" "+logs[i+3] + " " + logs[i+4] + " " + logs[i+5] + " " + logs[i+6]); // the format has been modified to be 3 (pos) 4 (quat)
+    						i = i + 7;
     					}
           print("write over");
           sw.Close();

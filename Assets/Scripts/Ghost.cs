@@ -14,8 +14,14 @@ public class Ghost : MonoBehaviour {
 	public Transform flWheelTrans;
 	public Transform frWheelTrans;
 	public Transform[] wheelTrans;
-	private float RPM = 1000.0f;
+	private float RPM = 100.0f;
 	private float wheelAngle = 0.0f;
+
+	private float current_tp = 0.0f;
+	private int STRIDE = 7;
+
+
+
 	// Use this for initialization
 	void Start () {
 			read_data();
@@ -24,44 +30,57 @@ public class Ghost : MonoBehaviour {
 	float normalize(float angle){
 		return (angle >= 180)? angle-360:angle;
 	}
+
+	private Vector3 velocity = Vector3.zero;
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		gc = GameObject.Find("Finish").GetComponent<GameControls>();
-		Vector3 p_1 =  new Vector3(data[6*count], data[6*count + 1], data[6*count + 2]);
-		Vector3 r_1 =  new Vector3(data[6*count+3], data[6*count + 4], data[6*count + 5]);
 
-		Vector3 p_2 = p_1;
-		Vector3 r_2 = r_1;
+		if(gc.isStart){
+			//use the current tp to compute the index of the current frame
+			int i = (int)Mathf.Floor(current_tp / Driving.fps);
+			int j = (i >= data.Count/STRIDE)? i : i +1;
 
+			float split = (i == j)? 0.5f : (current_tp / Driving.fps - (float)i);
 
+			//print("current frame :" + i + " split :" + split);
 
-		if(gc.isStart && 6*count < data.Count-6){
-			// which means there is one over me
-			if(6*count > 0){
-				Vector3 p_0 = new Vector3(data[6*count - 6], data[6*count - 5], data[6*count - 4]);
-				p_2 = new Vector3(data[6*count + 6], data[6*count + 7], data[6*count + 8]);
-				r_2 = new Vector3(data[6*count + 9], data[6*count + 10], data[6*count + 11]);
-				float acceleration = ((p_2 - p_1).magnitude - (p_1 - p_0).magnitude);
-				//print(acceleration);
-				wheelAngle = Mathf.Min(Vector3.Angle(p_2 - p_1, p_1 - p_0), 5.0f);
-				WheelRotated(acceleration, wheelAngle) ;
+			if(i > data.Count/STRIDE - 1){
+				i = data.Count/STRIDE - 1;
 			}
-			count ++;
-			//make the ghost much more realistic, add some rotation to the wheel
+
+			if(j > data.Count/STRIDE - 1){
+				j = data.Count/STRIDE - 1;
+			}
+
+			this.gameObject.transform.position = Vector3.Lerp(new Vector3(data[STRIDE*i], data[STRIDE*i+1], data[STRIDE*i+2]),
+																												new Vector3(data[STRIDE*j], data[STRIDE*j+1], data[STRIDE*j+2]),
+																												split);
+			this.gameObject.transform.rotation = Quaternion.Slerp(new Quaternion(data[STRIDE*i+3], data[STRIDE*i+4], data[STRIDE*i+5], data[STRIDE*i+6]),
+																												new Quaternion(data[STRIDE*j+3], data[STRIDE*j+4], data[STRIDE*j+5], data[STRIDE*j+6]),
+																												split);
+
+			//set the wheel
+			float axisV = (new Vector3(data[STRIDE*i], data[STRIDE*i+1], data[STRIDE*i+2]) - new Vector3(data[STRIDE*j], data[STRIDE*j+1], data[STRIDE*j+2])).magnitude;
+			WheelRotated(axisV, 0.0f);
+
+
+			current_tp += Time.deltaTime;
+		}else{
+			this.gameObject.transform.position = new Vector3(data[0], data[1], data[2]);
+			this.gameObject.transform.rotation =   new Quaternion(data[3], data[4], data[5], data[6]);
 		}
 
-		this.gameObject.transform.position = p_1;
-		this.gameObject.transform.rotation = Quaternion.Euler(r_1);
 	}
 
 	private void WheelRotated(float axisV, float wheelAngle)
 	{
 			foreach (Transform wheel in wheelTrans)
 			{
-					wheel.Rotate(RPM* Time.deltaTime * 6, 0, 0);
+					wheel.Rotate(RPM * 6 * Time.deltaTime, 0, 0);
 			}
-			flWheelTrans.localEulerAngles = new Vector3(RPM* Time.deltaTime * 6, wheelAngle * 3, 0);
-			frWheelTrans.localEulerAngles = new Vector3(RPM* Time.deltaTime * 6, wheelAngle * 3, 0);
+			//flWheelTrans.localEulerAngles = new Vector3(RPM* Time.deltaTime * 6, wheelAngle * 3, 0);
+			//frWheelTrans.localEulerAngles = new Vector3(RPM* Time.deltaTime * 6, wheelAngle * 3, 0);
 	}
 
 
@@ -76,9 +95,10 @@ public class Ghost : MonoBehaviour {
 				data.Add(this.gameObject.transform.position.x);
 						data.Add(this.gameObject.transform.position.y);
 								data.Add(this.gameObject.transform.position.z);
-									data.Add(this.gameObject.transform.eulerAngles.x);
-										data.Add(this.gameObject.transform.eulerAngles.y);
-											data.Add(this.gameObject.transform.eulerAngles.z);
+									data.Add(this.gameObject.transform.rotation.x);
+										data.Add(this.gameObject.transform.rotation.y);
+											data.Add(this.gameObject.transform.rotation.z);
+												data.Add(this.gameObject.transform.rotation.w);
 								return ;
 			}
 
@@ -91,13 +111,14 @@ public class Ghost : MonoBehaviour {
 			// the file is reached.
 			while ((line = sr.ReadLine()) != null){
 				string [] pos = line.Split(new Char[] { ' ' });
-				if(pos.Length == 6){
+				if(pos.Length == STRIDE){
 				data.Add((float)Convert.ToSingle(pos[0]));
 				data.Add((float)Convert.ToSingle(pos[1]));
 				data.Add((float)Convert.ToSingle(pos[2]));
 				data.Add((float)Convert.ToSingle(pos[3]));
 				data.Add((float)Convert.ToSingle(pos[4]));
 				data.Add((float)Convert.ToSingle(pos[5]));
+				data.Add((float)Convert.ToSingle(pos[6]));
 			}
 			}
 

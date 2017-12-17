@@ -10,7 +10,7 @@ public class Extra : MonoBehaviour {
 			private GameObject[] CarComputer;
 	    private bool has_created = false;
 			private string type = GAMETYPE.SINGLE.ToString(); // which controls the default behavior of the gametype
-			private int AWARD_COUNT = 4;
+			private int AWARD_COUNT = 8;
 	    private int GHOST_COUNT = 2;
 	    private int TOTAL_COUNT = 8;
 			private string [] log_uuids;
@@ -39,11 +39,14 @@ public class Extra : MonoBehaviour {
 
 				//these are just fake codes, which will be implemented after morino has some knowledge
 				// about how were the network module implemented
-				int i = 0;
-				while(i < log_uuids.Length){
-					log_uuids[i] = "64284839-a483-4081-b3d1-f74919459283";
-					i++;
-				}
+				log_uuids[0] = "1eba5eab-2316-4ba9-8935-4c20acdfb33f";
+				log_uuids[1] = "185b724d-1f5c-4484-98ed-6220ca34a743";
+				log_uuids[2] = "0b59a675-01f9-4204-8775-0d5c43af808f";
+				log_uuids[3] = "efed9bf0-eff6-4c7c-b25e-84bcda19df96";
+				log_uuids[4] = "3dac6187-f230-4e14-bf80-aca9af0a9702";
+				log_uuids[5] = "437e9cb1-ca30-4a6e-a12d-a29a8ef7532e";
+				log_uuids[6] = "cb4fcdba-4585-4d60-8bf3-514d1f407f6e";
+				log_uuids[7] = "9465ba19-a3b8-4e7b-8320-64bcf9cbf88a";
 			}
 
 
@@ -86,6 +89,7 @@ public class Extra : MonoBehaviour {
 				for(int j = 0; j < CarComputer.Length; j++){
 					if(CarComputer[j].activeSelf){
 						//then set the log path
+						print(j);
 						CarComputer[j].GetComponent<Ghost>().log_path = String.Format(LOG_FORMAT, log_uuids[j]);
 					}
 				}

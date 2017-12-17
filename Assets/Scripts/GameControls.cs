@@ -21,6 +21,7 @@ public class GameControls : MonoBehaviour
         timeLabel = GameObject.Find("Time").GetComponent<UILabel>();
         startLabel = GameObject.Find("Start").GetComponent<UILabel>();
         bestLabel = GameObject.Find("Best").GetComponent<UILabel>();
+        type = PlayerPrefs.GetString("GAMETYPE");
         //PlayerPrefs.DeleteAll();
     }
 
@@ -72,6 +73,7 @@ public class GameControls : MonoBehaviour
             }
     }
     public int Rank = 1;
+    public int fake_Count = 0;
 
     private int lap = 0;
     public void OnTriggerEnter(Collider other)
@@ -87,15 +89,18 @@ public class GameControls : MonoBehaviour
 
             if (this.name == "Finish")
             {
+              print(this.transform.forward);
+              print(other.gameObject.transform.parent.GetComponent<Rigidbody>().velocity);
               // a much finer detection of success
-              if(other.gameObject.transform.parent.GetComponent<Rigidbody>().velocity.x <= 0){
+              fake_Count += 1;
+              if(Vector3.Dot(Vector3.Normalize(other.gameObject.transform.parent.GetComponent<Rigidbody>().velocity), this.transform.forward) > 0.005){
                 lap += 1;
               }else{
                 lap -= 1;
               }
 
               // I only set the condition to be true, since I would like to record some data for test
-              if (true){
+              if (lap > 0 || fake_Count >= 10 ||  int.Parse(timeLabel.text) >= 150){
                   isOver = true;
 
                   if(PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.SINGLE.ToString())
@@ -114,6 +119,7 @@ public class GameControls : MonoBehaviour
             if (this.name == "Finish")
             {
                     Rank++;
+                    print(other.gameObject.transform.parent.name);
                     print("Computer finished");
             }
         }
