@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.IO;
+using System.Text;
+using UnityEngine.Networking;
 
 public class Driving : MonoBehaviour
 {
@@ -175,6 +177,33 @@ public class Driving : MonoBehaviour
     private int count = 0;
 
     private bool has_written = false;
+    private bool network_enabled = true;
+    public static string server_url = "http://127.0.0.1:3000";
+
+
+
+
+
+
+    /* FINISH THE UPLOADING HERE*/
+    private void upload_track(string user_id, float tp, List<float> logs){
+      Track tk = new Track();
+      tk.user_id = user_id;
+      tk.track_time = tp;
+      tk.track_data = logs.ToArray();
+
+      string data = JsonUtility.ToJson(tk);
+      //print("come to here");
+      print(data);
+
+
+      var request = new UnityWebRequest(server_url, "POST");
+      byte[] bodyRaw = Encoding.UTF8.GetBytes(data);
+      request.uploadHandler = (UploadHandler) new UploadHandlerRaw(bodyRaw);
+      request.SetRequestHeader("Content-Type", "application/json");
+      //simply sync it
+      request.Send();
+    }
 
 
     private void interpolate(){
@@ -463,6 +492,13 @@ public class Driving : MonoBehaviour
                 interpolate();
                 write_log(logs); //write the logs into the file
                 has_written = true;
+
+                // here invoke the auxiliary function for updating
+                if(network_enabled){
+                  print("here");
+                  upload_track(PlayerPrefs.GetString("UID"), current_tp, logs);
+                }
+
             }
 
             return;
@@ -700,6 +736,7 @@ public class Driving : MonoBehaviour
 
 
 
+
     	private void write_log(List<float> logs){
         FileStream fs;
     	    if(!File.Exists(log_path)){
@@ -717,13 +754,5 @@ public class Driving : MonoBehaviour
     					}
           print("write over");
           sw.Close();
-
-
-
-
-          /* STUNK: UPLOAD CODE COULD BE WRITTEN HERE*/
-          /* */
-
-
     	 }
 }

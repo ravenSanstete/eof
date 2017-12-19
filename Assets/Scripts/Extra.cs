@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 using System;
+using System.IO;
 
 public class Extra : MonoBehaviour {
 	    // some check points
@@ -34,11 +37,56 @@ public class Extra : MonoBehaviour {
 	        }
 	    }
 
+
+			private string write_track(float[] track_data){
+					FileStream fs;
+					string guid = Guid.NewGuid().ToString();
+					string log_path = String.Format(LOG_FORMAT, guid);
+					//check whether such a file exists
+					if(!File.Exists(log_path)){
+						 fs = File.Create(log_path);
+					}else{
+						 fs = File.Open(log_path, FileMode.Open, FileAccess.Write, FileShare.None);
+					}
+
+					StreamWriter sw = new StreamWriter(fs);
+					int i = 0;
+					print(track_data.Length);
+					while(i < track_data.Length){
+						sw.WriteLine(track_data[i] + " " + track_data[i+1]+ " " + track_data[i+2]+" "+track_data[i+3] + " " + track_data[i+4] + " " + track_data[i+5] + " " + track_data[i+6]); // the format has been modified to be 3 (pos) 4 (quat)
+						i = i + 7;
+					}
+					sw.Close();
+					return guid;
+			 }
+
 			//a trunk, later the network module will let it ask the server for log data
 			private void fetch_logs(){
 
 				//these are just fake codes, which will be implemented after morino has some knowledge
 				// about how were the network module implemented
+				UnityWebRequest www = UnityWebRequest.Get(Driving.server_url);
+				www.Send();
+
+				if(www.isNetworkError || www.isHttpError) {
+						Debug.Log(www.error);
+				}
+				else {
+					// Show results as text
+					//Debug.Log(www.downloadHandler.text);
+
+					// Or retrieve results as binary data
+					byte[] results = www.downloadHandler.data;
+					// write data locally
+					string json_str = Encoding.UTF8.GetString(results);
+
+					print(json_str);
+
+					// then parsing the json string and write them into arbitraty files
+
+				}
+
+				//setting the path of the file
 				log_uuids[0] = "1eba5eab-2316-4ba9-8935-4c20acdfb33f";
 				log_uuids[1] = "185b724d-1f5c-4484-98ed-6220ca34a743";
 				log_uuids[2] = "0b59a675-01f9-4204-8775-0d5c43af808f";

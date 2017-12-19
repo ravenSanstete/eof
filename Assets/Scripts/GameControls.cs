@@ -50,7 +50,7 @@ public class GameControls : MonoBehaviour
                 else
                 {
 
-                    if (type != GAMETYPE.SINGLE.ToString() || type != GAMETYPE.MULTI.ToString())
+                    if (type != GAMETYPE.SINGLE.ToString() && type != GAMETYPE.MULTI.ToString())
                         return;
 
                     start_sprite.SetActive(true);
@@ -106,12 +106,15 @@ public class GameControls : MonoBehaviour
               }
 
               // I only set the condition to be true, since I would like to record some data for test
-              if (lap > 0 || fake_Count >= 10 ||  int.Parse(timeLabel.text) >= 150){
+              if (true/*lap > 0 || fake_Count >= 10 ||  int.Parse(timeLabel.text) >= 150*/){
                   isOver = true;
+
                   start_sprite.SetActive(true);
 
                   if(PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.SINGLE.ToString() || PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.MULTI.ToString())
-                  { }
+                  {
+
+                  }
                   else
                   {
                     startLabel.text = "Your Rank: " + Rank.ToString();
