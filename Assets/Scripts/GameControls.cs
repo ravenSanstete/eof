@@ -7,6 +7,7 @@ public class GameControls : MonoBehaviour
     private Driving driving;
     public bool isStart = false;
     public bool isOver = false;
+    private GameObject start_sprite;
     private UILabel timeLabel, startLabel, bestLabel;
     private float time = 0;
     private bool isGameCompleted = false;
@@ -21,6 +22,7 @@ public class GameControls : MonoBehaviour
         timeLabel = GameObject.Find("Time").GetComponent<UILabel>();
         startLabel = GameObject.Find("Start").GetComponent<UILabel>();
         bestLabel = GameObject.Find("Best").GetComponent<UILabel>();
+        start_sprite = GameObject.Find("Start_Sp");
         type = PlayerPrefs.GetString("GAMETYPE");
         //PlayerPrefs.DeleteAll();
     }
@@ -41,13 +43,17 @@ public class GameControls : MonoBehaviour
                 isStart = true;
                 if (!isOver)
                 {
+                    start_sprite.SetActive(false);
                     startLabel.text = "";
                     timeLabel.text = (Mathf.RoundToInt(time) - 3).ToString();
                 }
                 else
                 {
-                    if (type != GAMETYPE.SINGLE.ToString())
+
+                    if (type != GAMETYPE.SINGLE.ToString() || type != GAMETYPE.MULTI.ToString())
                         return;
+
+                    start_sprite.SetActive(true);
                     time = int.Parse(timeLabel.text);
                     startLabel.text = "Your Time: " + timeLabel.text + "″";
                     if (PlayerPrefs.HasKey("bestTime"))
@@ -102,8 +108,9 @@ public class GameControls : MonoBehaviour
               // I only set the condition to be true, since I would like to record some data for test
               if (lap > 0 || fake_Count >= 10 ||  int.Parse(timeLabel.text) >= 150){
                   isOver = true;
+                  start_sprite.SetActive(true);
 
-                  if(PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.SINGLE.ToString())
+                  if(PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.SINGLE.ToString() || PlayerPrefs.GetString("GAMETYPE") == GAMETYPE.MULTI.ToString())
                   { }
                   else
                   {

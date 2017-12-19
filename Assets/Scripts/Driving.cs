@@ -99,7 +99,7 @@ public class Driving : MonoBehaviour
 
     public void recoverStatus(){
       status_label.text = "NORMAL";
-      status_label.color = Color.green;
+      status_label.color = Color.white;
     }
 
     // Use this for initialization
@@ -717,6 +717,12 @@ public class Driving : MonoBehaviour
     					}
           print("write over");
           sw.Close();
+
+
+
+
+          /* STUNK: UPLOAD CODE COULD BE WRITTEN HERE*/
+          /* */
 
 
     	 }

@@ -10,10 +10,16 @@ public class startMenu : MonoBehaviour {
     public GameObject playButton;
     public GAMETYPE gameType = GAMETYPE.SINGLE;
     public UIInput input;
+    public static bool first_time = true;
 	// Use this for initialization
 	void Start () {
+      if(first_time){
         spriteB.SetActive(false);
         playButton.SetActive(false);
+        first_time = false;
+      }else{
+        spriteA.SetActive(false);
+      }
 	}
 
 	// Update is called once per frame

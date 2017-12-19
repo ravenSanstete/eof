@@ -5,7 +5,7 @@ using System;
 
 public class BananaEffect : MonoBehaviour {
 	private int item_type_count = 5;
-	public static bool item_enabled = false;
+	public static bool item_enabled = true;
 	// Use this for initialization
 	void Start () {
 

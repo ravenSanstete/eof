@@ -50,6 +50,9 @@ public class Extra : MonoBehaviour {
 			}
 
 
+
+
+
 	// Use this for initialization
 	void Start (){
 				log_uuids = new string[TOTAL_COUNT];
@@ -61,27 +64,28 @@ public class Extra : MonoBehaviour {
 				CarComputer = GameObject.FindGameObjectsWithTag("CarComputer");
 
         //indicates the single driver mode
-        if (type == GAMETYPE.SINGLE.ToString())
+        if (type == GAMETYPE.SINGLE.ToString() || type == GAMETYPE.MULTI.ToString())
         {
             foreach (GameObject item in CarComputer)
             {
                 item.SetActive(false);
             }
+
+						BananaEffect.item_enabled = (type == GAMETYPE.MULTI.ToString());
         }else{
           // maybe the ghost or the reward mode
           // control the count of computercar over the lane
-          int total_deact = TOTAL_COUNT - (type == GAMETYPE.MULTI.ToString()? GHOST_COUNT: AWARD_COUNT);
+          int total_deact = TOTAL_COUNT - AWARD_COUNT;
           int current_count = 0;
           //print(total_deact);
           // only deactivate the specified number of cars on the scene
           // travel over the list
-          int j = 0;
-          while(current_count < total_deact && j < CarComputer.Length){
-            CarComputer[j].SetActive(false);
+          int k = 0;
+          while(current_count < total_deact && k < CarComputer.Length){
+            CarComputer[k].SetActive(false);
             current_count ++;
-            j++;
+            k++;
           }
-        }
 
 
 
@@ -93,24 +97,23 @@ public class Extra : MonoBehaviour {
 						CarComputer[j].GetComponent<Ghost>().log_path = String.Format(LOG_FORMAT, log_uuids[j]);
 					}
 				}
+      }
 
 
 
-		    //set up the items
-		    GameObject banana_item = GameObject.Find("BananaItem");
+			GameObject banana_item = GameObject.Find("BananaItem");
 
-		  	for(int i = 0; i < poss.Length; i++){
+				if(BananaEffect.item_enabled){
+		    	//set up the items
+
+
+		  		for(int i = 0; i < poss.Length; i++){
 		        Instantiate(banana_item, poss[i].transform.position, Quaternion.identity);
-		    }
-
-		   	banana_item.SetActive(false);
-
-
-				// morino should set all the data path for each car in this script
+		    	}
+				}
 
 
-
-
+				banana_item.SetActive(false);
 	}
 
 	// Update is called once per frame
