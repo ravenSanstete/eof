@@ -25,6 +25,7 @@ public class Ghost : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 			read_data();
+			//Driving.upload_track("helo", 150, data);
 
 	}
 	float normalize(float angle){

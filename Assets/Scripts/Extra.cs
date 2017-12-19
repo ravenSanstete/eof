@@ -66,35 +66,44 @@ public class Extra : MonoBehaviour {
 				//these are just fake codes, which will be implemented after morino has some knowledge
 				// about how were the network module implemented
 				UnityWebRequest www = UnityWebRequest.Get(Driving.server_url);
-				www.Send();
-
+				var op = www.Send();
+				while (!op.isDone);
 				if(www.isNetworkError || www.isHttpError) {
 						Debug.Log(www.error);
 				}
 				else {
 					// Show results as text
-					//Debug.Log(www.downloadHandler.text);
+					Debug.Log(www.downloadHandler.text);
 
 					// Or retrieve results as binary data
 					byte[] results = www.downloadHandler.data;
+
+
+
 					// write data locally
 					string json_str = Encoding.UTF8.GetString(results);
 
 					print(json_str);
-
 					// then parsing the json string and write them into arbitraty files
+					Tracks tks = (Tracks)JsonUtility.FromJson<Tracks>(json_str);
+					print("track count : " + tks.tracks.Length);
+					for(int i = 0; i < tks.tracks.Length && i <TOTAL_COUNT; i++){
+						log_uuids[i] = write_track(tks.tracks[i].track_data);
+						print(log_uuids[i]);
+					}
+
 
 				}
 
 				//setting the path of the file
-				log_uuids[0] = "1eba5eab-2316-4ba9-8935-4c20acdfb33f";
-				log_uuids[1] = "185b724d-1f5c-4484-98ed-6220ca34a743";
-				log_uuids[2] = "0b59a675-01f9-4204-8775-0d5c43af808f";
-				log_uuids[3] = "efed9bf0-eff6-4c7c-b25e-84bcda19df96";
-				log_uuids[4] = "3dac6187-f230-4e14-bf80-aca9af0a9702";
-				log_uuids[5] = "437e9cb1-ca30-4a6e-a12d-a29a8ef7532e";
-				log_uuids[6] = "cb4fcdba-4585-4d60-8bf3-514d1f407f6e";
-				log_uuids[7] = "9465ba19-a3b8-4e7b-8320-64bcf9cbf88a";
+				// log_uuids[0] = "1eba5eab-2316-4ba9-8935-4c20acdfb33f";
+				// log_uuids[1] = "185b724d-1f5c-4484-98ed-6220ca34a743";
+				// log_uuids[2] = "0b59a675-01f9-4204-8775-0d5c43af808f";
+				// log_uuids[3] = "efed9bf0-eff6-4c7c-b25e-84bcda19df96";
+				// log_uuids[4] = "3dac6187-f230-4e14-bf80-aca9af0a9702";
+				// log_uuids[5] = "437e9cb1-ca30-4a6e-a12d-a29a8ef7532e";
+				// log_uuids[6] = "cb4fcdba-4585-4d60-8bf3-514d1f407f6e";
+				// log_uuids[7] = "9465ba19-a3b8-4e7b-8320-64bcf9cbf88a";
 			}
 
 

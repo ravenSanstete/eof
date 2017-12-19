@@ -178,7 +178,7 @@ public class Driving : MonoBehaviour
 
     private bool has_written = false;
     private bool network_enabled = true;
-    public static string server_url = "http://127.0.0.1:3000";
+    public static string server_url = "http://192.168.31.19:8080/records";
 
 
 
@@ -186,7 +186,7 @@ public class Driving : MonoBehaviour
 
 
     /* FINISH THE UPLOADING HERE*/
-    private void upload_track(string user_id, float tp, List<float> logs){
+    public void upload_track(string user_id, float tp, List<float> logs){
       Track tk = new Track();
       tk.user_id = user_id;
       tk.track_time = tp;
@@ -202,7 +202,8 @@ public class Driving : MonoBehaviour
       request.uploadHandler = (UploadHandler) new UploadHandlerRaw(bodyRaw);
       request.SetRequestHeader("Content-Type", "application/json");
       //simply sync it
-      request.Send();
+      var op = request.Send();
+      while(!op.isDone);
     }
 
 
