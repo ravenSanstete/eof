@@ -106,7 +106,7 @@ public class GameControls : MonoBehaviour
               }
 
               // I only set the condition to be true, since I would like to record some data for test
-              if (true/*lap > 0 || fake_Count >= 10 ||  int.Parse(timeLabel.text) >= 150*/){
+              if (lap > 0 || fake_Count >= 10 ||  int.Parse(timeLabel.text) >= 150){
                   isOver = true;
 
                   start_sprite.SetActive(true);

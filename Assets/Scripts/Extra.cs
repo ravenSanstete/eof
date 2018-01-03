@@ -17,7 +17,6 @@ public class Extra : MonoBehaviour {
 	    private int GHOST_COUNT = 2;
 	    private int TOTAL_COUNT = 8;
 			private string [] log_uuids;
-			private string LOG_FORMAT = "/Users/morino/Desktop/bp/{0}.csv";
 
 	    private void GetPoss()
 	    {
@@ -41,7 +40,7 @@ public class Extra : MonoBehaviour {
 			private string write_track(float[] track_data){
 					FileStream fs;
 					string guid = Guid.NewGuid().ToString();
-					string log_path = String.Format(LOG_FORMAT, guid);
+					string log_path = String.Format(Driving.LOG_FORMAT, guid);
 					//check whether such a file exists
 					if(!File.Exists(log_path)){
 						 fs = File.Create(log_path);
@@ -65,6 +64,8 @@ public class Extra : MonoBehaviour {
 
 				//these are just fake codes, which will be implemented after morino has some knowledge
 				// about how were the network module implemented
+
+				if(Driving.network_enabled){
 				UnityWebRequest www = UnityWebRequest.Get(Driving.server_url);
 				var op = www.Send();
 				while (!op.isDone);
@@ -91,19 +92,18 @@ public class Extra : MonoBehaviour {
 						log_uuids[i] = write_track(tks.tracks[i].track_data);
 						print(log_uuids[i]);
 					}
-
-
 				}
-
+			}else{
 				//setting the path of the file
-				// log_uuids[0] = "1eba5eab-2316-4ba9-8935-4c20acdfb33f";
-				// log_uuids[1] = "185b724d-1f5c-4484-98ed-6220ca34a743";
-				// log_uuids[2] = "0b59a675-01f9-4204-8775-0d5c43af808f";
-				// log_uuids[3] = "efed9bf0-eff6-4c7c-b25e-84bcda19df96";
-				// log_uuids[4] = "3dac6187-f230-4e14-bf80-aca9af0a9702";
-				// log_uuids[5] = "437e9cb1-ca30-4a6e-a12d-a29a8ef7532e";
-				// log_uuids[6] = "cb4fcdba-4585-4d60-8bf3-514d1f407f6e";
-				// log_uuids[7] = "9465ba19-a3b8-4e7b-8320-64bcf9cbf88a";
+				log_uuids[0] = "1eba5eab-2316-4ba9-8935-4c20acdfb33f";
+				log_uuids[1] = "185b724d-1f5c-4484-98ed-6220ca34a743";
+				log_uuids[2] = "0b59a675-01f9-4204-8775-0d5c43af808f";
+				log_uuids[3] = "efed9bf0-eff6-4c7c-b25e-84bcda19df96";
+				log_uuids[4] = "3dac6187-f230-4e14-bf80-aca9af0a9702";
+				log_uuids[5] = "437e9cb1-ca30-4a6e-a12d-a29a8ef7532e";
+				log_uuids[6] = "cb4fcdba-4585-4d60-8bf3-514d1f407f6e";
+				log_uuids[7] = "9465ba19-a3b8-4e7b-8320-64bcf9cbf88a";
+			}
 			}
 
 
@@ -131,6 +131,7 @@ public class Extra : MonoBehaviour {
 						BananaEffect.item_enabled = (type == GAMETYPE.MULTI.ToString());
         }else{
           // maybe the ghost or the reward mode
+					BananaEffect.item_enabled = false;
           // control the count of computercar over the lane
           int total_deact = TOTAL_COUNT - AWARD_COUNT;
           int current_count = 0;
@@ -151,7 +152,7 @@ public class Extra : MonoBehaviour {
 					if(CarComputer[j].activeSelf){
 						//then set the log path
 						print(j);
-						CarComputer[j].GetComponent<Ghost>().log_path = String.Format(LOG_FORMAT, log_uuids[j]);
+						CarComputer[j].GetComponent<Ghost>().log_path = String.Format(Driving.LOG_FORMAT, log_uuids[j]);
 					}
 				}
       }

@@ -67,7 +67,9 @@ public class Driving : MonoBehaviour
 
 
 
-    private string LOG_FORMAT = "/Users/morino/Desktop/bp/{0}.csv";
+    public static string LOG_FORMAT = "";
+
+
     private string log_path;
     private string generate_random_record_name(){
       return String.Format(LOG_FORMAT, Guid.NewGuid().ToString());
@@ -107,6 +109,8 @@ public class Driving : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+
+        Driving.LOG_FORMAT = Application.dataPath +"/data/{0}.csv";
         UnityEngine.Random.seed = (int)DateTime.Now.Ticks;
         // generate random log log_path;
         log_path = generate_random_record_name();
@@ -177,7 +181,9 @@ public class Driving : MonoBehaviour
     private int count = 0;
 
     private bool has_written = false;
-    private bool network_enabled = true;
+
+    public static bool network_enabled = false;
+
     public static string server_url = "http://192.168.31.19:8080/records";
 
 
@@ -495,7 +501,7 @@ public class Driving : MonoBehaviour
                 has_written = true;
 
                 // here invoke the auxiliary function for updating
-                if(network_enabled){
+                if(Driving.network_enabled){
                   print("here");
                   upload_track(PlayerPrefs.GetString("UID"), current_tp, logs);
                 }
