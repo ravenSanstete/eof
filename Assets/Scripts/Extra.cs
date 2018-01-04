@@ -17,6 +17,7 @@ public class Extra : MonoBehaviour {
 	    private int GHOST_COUNT = 2;
 	    private int TOTAL_COUNT = 8;
 			private string [] log_uuids;
+			private string LOG_FORMAT = "";
 
 	    private void GetPoss()
 	    {
@@ -40,7 +41,7 @@ public class Extra : MonoBehaviour {
 			private string write_track(float[] track_data){
 					FileStream fs;
 					string guid = Guid.NewGuid().ToString();
-					string log_path = String.Format(Driving.LOG_FORMAT, guid);
+					string log_path = String.Format(LOG_FORMAT, guid);
 					//check whether such a file exists
 					if(!File.Exists(log_path)){
 						 fs = File.Create(log_path);
@@ -112,6 +113,7 @@ public class Extra : MonoBehaviour {
 
 	// Use this for initialization
 	void Start (){
+		LOG_FORMAT = Application.dataPath +"/logs/{0}.csv";
 				log_uuids = new string[TOTAL_COUNT];
 				fetch_logs();
 
@@ -152,7 +154,7 @@ public class Extra : MonoBehaviour {
 					if(CarComputer[j].activeSelf){
 						//then set the log path
 						print(j);
-						CarComputer[j].GetComponent<Ghost>().log_path = String.Format(Driving.LOG_FORMAT, log_uuids[j]);
+						CarComputer[j].GetComponent<Ghost>().log_path = String.Format(LOG_FORMAT, log_uuids[j]);
 					}
 				}
       }

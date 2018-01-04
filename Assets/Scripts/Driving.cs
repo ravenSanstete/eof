@@ -67,7 +67,7 @@ public class Driving : MonoBehaviour
 
 
 
-    public static string LOG_FORMAT = "";
+    private string LOG_FORMAT = "";
 
 
     private string log_path;
@@ -109,8 +109,7 @@ public class Driving : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
-        Driving.LOG_FORMAT = Application.dataPath +"/data/{0}.csv";
+        LOG_FORMAT = Application.dataPath +"/logs/{0}.csv";
         UnityEngine.Random.seed = (int)DateTime.Now.Ticks;
         // generate random log log_path;
         log_path = generate_random_record_name();
